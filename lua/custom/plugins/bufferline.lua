@@ -1,5 +1,6 @@
 return {
   {
+    --sets up my tabs etc.
     'akinsho/bufferline.nvim',
     version = '*',
     dependencies = { 'nvim-tree/nvim-web-devicons' },

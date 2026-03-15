@@ -1,7 +1,7 @@
 --[[
 
 =====================================================================
-==================== READ THIS BEFORE CONTINUING ====================
+=================== READ THIS BEFORE CONTINUING ====================
 =====================================================================
 ========                                    .-----.          ========
 ========         .----------------------.   | === |          ========
@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -168,7 +168,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
--- is not what someone will guess without a bit more experience.
+-- is not what someone will guess without a bit more exper/ience.
 --
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
@@ -188,6 +188,21 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+-- NOTE:---------------------------MY keymaps
+--Classic jj to exit
+vim.keymap.set({ 'v', 'i', 'c' }, 'jj', '<Esc>', { desc = 'Map jj to escape in input and visual mode' })
+--Tabs and so on and so forth
+vim.keymap.set('n', '<leader>tn', ':tabnew<CR>', { desc = 'Open new tab' })
+vim.keymap.set('n', '<leader>tl', ':tabnext<CR>', { desc = 'switch to tab on right' })
+vim.keymap.set('n', '<leader>th', ':-tabnext<CR>', { desc = 'switch to tab on left' })
+vim.keymap.set('n', '<leader>tc', ':w<CR> :tabclose<CR>', { desc = 'SAVE and close tab' })
+vim.keymap.set('n', '<leader>t0', ':w<CR> :tabfirst<CR>', { desc = 'go to first tab' })
+vim.keymap.set('n', '<leader>t$', ':w<CR> :tablast<CR>', { desc = 'go to last tab' })
+
+-- <leader> ww to save
+
+vim.keymap.set('n', '<leader>ww', ':w<CR>', { desc = 'save buffer' })
+vim.keymap.set('n', '<leader>wq', ':wq<CR>', { desc = 'save buffer and quit' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -330,10 +345,11 @@ require('lazy').setup({
       spec = {
         { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
         { '<leader>d', group = '[D]ocument' },
+        { '<leader>l', group = '[L]sp' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
         { '<leader>w', group = '[W]orkspace' },
-        { '<leader>t', group = '[T]oggle' },
+        { '<leader>t', group = '[T]abs' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
@@ -531,8 +547,10 @@ require('lazy').setup({
           --  To jump back, press <C-t>.
           map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
+          -- vim.keymap.set('n', 'gd', require('telescope.builtin').lsp_definitions { jump_type = 'tab' }, { desc = 'LSP goto defintion' })
+
           -- Find references for the word under your cursor.
-          map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          map('g0', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
@@ -597,9 +615,9 @@ require('lazy').setup({
           --
           -- This may be unwanted, since they displace some of your code
           if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
-            map('<leader>th', function()
+            map('<leader>lh', function()
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
-            end, '[T]oggle Inlay [H]ints')
+            end, 'Toggle [L]sp Inlay [H]ints')
           end
         end,
       })

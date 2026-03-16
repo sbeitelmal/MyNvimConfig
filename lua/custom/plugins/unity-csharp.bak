@@ -28,22 +28,13 @@ return {
     dependencies = {
       'mason-org/mason.nvim',
     },
-    opts = function()
-      local base_opts = {
-        -- Search parent directories for .sln files
-        -- Important for Unity projects where your .sln is at the project root
-        -- but you might open nvim from a subfolder
-        broad_search = true,
-        filewatching = 'roslyn',
-      }
-      -- Wrap with coq capabilities if coq_nvim is loaded, so Roslyn
-      -- advertises snippet support and enhanced completion features
-      local ok_coq, coq = pcall(require, 'coq')
-      if ok_coq then
-        return coq.lsp_ensure_capabilities(base_opts)
-      end
-      return base_opts
-    end,
+    opts = {
+      -- Search parent directories for .sln files
+      -- Important for Unity projects where your .sln is at the project root
+      -- but you might open nvim from a subfolder
+      broad_search = true,
+      filewatching = 'roslyn',
+    },
   },
 
   -- Ensure C# treesitter grammar is installed for syntax highlighting

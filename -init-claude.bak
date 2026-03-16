@@ -638,16 +638,13 @@ require('lazy').setup({
       --  By default, Neovim doesn't support everything that is in the LSP specification.
       --  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
       --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
-
-      --Note old cmp setup-------------------------------------------------
       local capabilities = vim.lsp.protocol.make_client_capabilities()
-      -- capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
+      -- Use cmp capabilities if available, otherwise coq handles this via lsp_ensure_capabilities
       local ok_cmp, cmp_lsp = pcall(require, 'cmp_nvim_lsp')
       if ok_cmp then
         capabilities = vim.tbl_deep_extend('force', capabilities, cmp_lsp.default_capabilities())
       end
 
-      --
       -- Enable the following language servers
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
       --
@@ -714,8 +711,7 @@ require('lazy').setup({
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            --NOTE--------------------------Old cmp based masong config
-            -- require('lspconfig')[server_name].setup(server)
+            -- Wrap with coq capabilities if coq_nvim is loaded, otherwise use plain setup
             local ok_coq, coq = pcall(require, 'coq')
             if ok_coq then
               require('lspconfig')[server_name].setup(coq.lsp_ensure_capabilities(server))
@@ -892,16 +888,13 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    -- 'folke/tokyonight.nvim',
-    'catppuccin/nvim',
-    name = 'catppuccin',
+    'folke/tokyonight.nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     init = function()
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      -- vim.cmd.colorscheme 'tokyonight-night'
-      vim.cmd.colorscheme 'catppuccin-mocha'
+      vim.cmd.colorscheme 'tokyonight-night'
 
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'

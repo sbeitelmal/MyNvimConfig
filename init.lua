@@ -365,7 +365,7 @@ require('lazy').setup({
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
     event = 'VimEnter',
-    branch = '0.1.x',
+    -- branch = '0.1.x',
     dependencies = {
       'nvim-lua/plenary.nvim',
       { -- If encountering errors, see telescope-fzf-native README for installation instructions
@@ -545,9 +545,11 @@ require('lazy').setup({
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
-          map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          -- map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
-          -- vim.keymap.set('n', 'gd', require('telescope.builtin').lsp_definitions { jump_type = 'tab' }, { desc = 'LSP goto defintion' })
+          vim.keymap.set('n', 'gd', function()
+            require('telescope.builtin').lsp_definitions { jump_type = 'tab' }
+          end, { desc = 'LSP goto defintion' })
 
           -- Find references for the word under your cursor.
           map('g0', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
@@ -890,7 +892,34 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  {
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = { signs = true },
+    keywords = {
+      FIX = {
+        icon = ' ', -- icon used for the sign, and in search results
+        color = 'error', -- can be a hex color, or a named color (see below)
+        alt = { 'FIXME', 'BUG', 'FIXIT', 'ISSUE' }, -- a set of other keywords that all map to this FIX keywords
+        -- signs = false, -- configure signs for some keywords individually
+      },
+      TODO = { icon = ' ', color = 'info' },
+      HACK = { icon = ' ', color = 'warning' },
+      WARN = { icon = ' ', color = 'warning', alt = { 'WARNING', 'XXX' } },
+      PERF = { icon = ' ', alt = { 'OPTIM', 'PERFORMANCE', 'OPTIMIZE' } },
+      NOTE = { icon = ' ', color = 'hint', alt = { 'INFO' } },
+      TEST = { icon = '⏲ ', color = 'test', alt = { 'TESTING', 'PASSED', 'FAILED' } },
+    },
+    colors = {
+      error = { 'DiagnosticError', 'ErrorMsg', '#DC2626' },
+      warning = { 'DiagnosticWarn', 'WarningMsg', '#FBBF24' },
+      info = { 'DiagnosticInfo', '#2563EB' },
+      hint = { 'DiagnosticHint', '#10B981' },
+      default = { 'Identifier', '#7C3AED' },
+      test = { 'Identifier', '#FF00FF' },
+    },
+  },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',

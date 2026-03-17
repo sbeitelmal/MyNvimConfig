@@ -190,7 +190,7 @@ vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower win
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 -- NOTE:---------------------------MY keymaps
 --Classic jj to exit
-vim.keymap.set({ 'v', 'i', 'c' }, 'jj', '<Esc>', { desc = 'Map jj to escape in input and visual mode' })
+vim.keymap.set({ 'v', 'i', 'c' }, 'jj', '<Esc>', { desc = 'map jj to escape in input and visual mode' })
 --Tabs and so on and so forth
 vim.keymap.set('n', '<leader>tn', ':tabnew<CR>', { desc = 'Open new tab' })
 vim.keymap.set('n', '<leader>tl', ':tabnext<CR>', { desc = 'switch to tab on right' })
@@ -203,6 +203,10 @@ vim.keymap.set('n', '<leader>t$', ':w<CR> :tablast<CR>', { desc = 'go to last ta
 
 vim.keymap.set('n', '<leader>ww', ':w<CR>', { desc = 'save buffer' })
 vim.keymap.set('n', '<leader>wq', ':wq<CR>', { desc = 'save buffer and quit' })
+
+--Renaming using vim, useful for single file renaming and files with no lsps like shaders
+vim.keymap.set('n', '<leader>rv', '*:%s//NEW_NAME/g', { desc = '[R]ename in file using [v]im commands' })
+vim.keymap.set('n', '<leader>rV', '*:%s//NEW_NAME/gc', { desc = '[R]ename in file using [V]im commands' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -494,7 +498,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP.
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      -- { 'j-hui/fidget.nvim', opts = {} },
 
       -- Allows extra capabilities provided by nvim-cmp
       'hrsh7th/cmp-nvim-lsp',
@@ -548,11 +552,13 @@ require('lazy').setup({
           -- map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
           vim.keymap.set('n', 'gd', function()
-            require('telescope.builtin').lsp_definitions { jump_type = 'tab' }
+            require('telescope.builtin').lsp_definitions { jump_type = 'tab drop' }
           end, { desc = 'LSP goto defintion' })
 
           -- Find references for the word under your cursor.
-          map('g0', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          map('g0', function()
+            require('telescope.builtin').lsp_references { jump_type = 'tab drop' }
+          end, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
@@ -685,6 +691,7 @@ require('lazy').setup({
             },
           },
         },
+        glsl_analyzer = {},
       }
 
       -- Ensure the servers and tools above are installed
@@ -887,26 +894,26 @@ require('lazy').setup({
     end,
   },
 
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    -- 'folke/tokyonight.nvim',
-    'catppuccin/nvim',
-    name = 'catppuccin',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      -- vim.cmd.colorscheme 'tokyonight-night'
-      vim.cmd.colorscheme 'catppuccin-mocha'
-
-      -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
-    end,
-  },
+  -- { -- You can easily change to a different colorscheme.
+  --   -- Change the name of the colorscheme plugin below, and then
+  --   -- change the command in the config to whatever the name of that colorscheme is.
+  --   --
+  --   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+  --   -- 'folke/tokyonight.nvim',
+  --   'catppuccin/nvim',
+  --   name = 'catppuccin',
+  --   priority = 1000, -- Make sure to load this before all the other start plugins.
+  --   init = function()
+  --     -- Load the colorscheme here.
+  --     -- Like many other themes, this one has different styles, and you could load
+  --     -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+  --     -- vim.cmd.colorscheme 'tokyonight-night'
+  --     vim.cmd.colorscheme 'catppuccin-mocha'
+  --
+  --     -- You can configure highlights by doing something like:
+  --     vim.cmd.hi 'Comment gui=none'
+  --   end,
+  -- },
 
   -- Highlight todo, notes, etc in comments
   {

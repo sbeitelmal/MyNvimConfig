@@ -1,238 +1,261 @@
-# kickstart.nvim
+# MyNvimConfig
 
-## Introduction
+Personal Neovim configuration based on [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim), customized for Unity game development (C# and shaders) and general-purpose editing. Uses Nerd Fonts, the gruvbox-material colorscheme, and coq_nvim for autocompletion.
 
-A starting point for Neovim that is:
+The leader key is `<Space>`.
 
-* Small
-* Single-file
-* Completely Documented
 
-**NOT** a Neovim distribution, but instead a starting point for your configuration.
-
-## Installation
-
-### Install Neovim
-
-Kickstart.nvim targets *only* the latest
-['stable'](https://github.com/neovim/neovim/releases/tag/stable) and latest
-['nightly'](https://github.com/neovim/neovim/releases/tag/nightly) of Neovim.
-If you are experiencing issues, please make sure you have the latest versions.
-
-### Install External Dependencies
-
-External Requirements:
-- Basic utils: `git`, `make`, `unzip`, C Compiler (`gcc`)
-- [ripgrep](https://github.com/BurntSushi/ripgrep#installation)
-- Clipboard tool (xclip/xsel/win32yank or other depending on the platform)
-- A [Nerd Font](https://www.nerdfonts.com/): optional, provides various icons
-  - if you have it set `vim.g.have_nerd_font` in `init.lua` to true
-- Language Setup:
-  - If you want to write Typescript, you need `npm`
-  - If you want to write Golang, you will need `go`
-  - etc.
-
-> **NOTE**
-> See [Install Recipes](#Install-Recipes) for additional Windows and Linux specific notes
-> and quick install snippets
-
-### Install Kickstart
-
-> **NOTE**
-> [Backup](#FAQ) your previous configuration (if any exists)
-
-Neovim's configurations are located under the following paths, depending on your OS:
-
-| OS | PATH |
-| :- | :--- |
-| Linux, MacOS | `$XDG_CONFIG_HOME/nvim`, `~/.config/nvim` |
-| Windows (cmd)| `%localappdata%\nvim\` |
-| Windows (powershell)| `$env:LOCALAPPDATA\nvim\` |
-
-#### Recommended Step
-
-[Fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repo
-so that you have your own copy that you can modify, then install by cloning the
-fork to your machine using one of the commands below, depending on your OS.
-
-> **NOTE**
-> Your fork's URL will be something like this:
-> `https://github.com/<your_github_username>/kickstart.nvim.git`
-
-You likely want to remove `lazy-lock.json` from your fork's `.gitignore` file
-too - it's ignored in the kickstart repo to make maintenance easier, but it's
-[recommended to track it in version control](https://lazy.folke.io/usage/lockfile).
-
-#### Clone kickstart.nvim
-> **NOTE**
-> If following the recommended step above (i.e., forking the repo), replace
-> `nvim-lua` with `<your_github_username>` in the commands below
-
-<details><summary> Linux and Mac </summary>
-
-```sh
-git clone https://github.com/nvim-lua/kickstart.nvim.git "${XDG_CONFIG_HOME:-$HOME/.config}"/nvim
-```
-
-</details>
-
-<details><summary> Windows </summary>
-
-If you're using `cmd.exe`:
+## Directory Structure
 
 ```
-git clone https://github.com/nvim-lua/kickstart.nvim.git "%localappdata%\nvim"
+~/.config/nvim/
+  init.lua                          -- Main config: options, keymaps, plugin manager, core plugins
+  after/
+    lsp/
+      roslyn.lua                    -- Roslyn LSP settings (completion, inlay hints, analysis scope)
+  lua/
+    custom/
+      plugins/
+        bufferline.lua              -- Tab bar display (akinsho/bufferline.nvim)
+        coq.lua                     -- Completion engine (ms-jpq/coq_nvim), disables nvim-cmp
+        dashboard.lua               -- Start screen (nvimdev/dashboard-nvim)
+        diagflow.lua                -- Inline diagnostics (dgagn/diagflow.nvim)
+        fidget.lua                  -- LSP progress notifications + Roslyn progress bridge
+        neo-tree.lua                -- File browser sidebar (nvim-neo-tree/neo-tree.nvim)
+        theme.lua                   -- Gruvbox Material colorscheme
+        unity-csharp.lua            -- C# / Roslyn LSP / Mason custom registry
+        unity-shaders.lua           -- Shader filetype detection, treesitter grammars, syntax
+    kickstart/
+      plugins/                      -- Stock kickstart optional plugins (not currently loaded)
 ```
 
-If you're using `powershell.exe`
 
-```
-git clone https://github.com/nvim-lua/kickstart.nvim.git "${env:LOCALAPPDATA}\nvim"
-```
+## Installed Plugins
 
-</details>
+### Core (from kickstart)
 
-### Post Installation
+| Plugin | Purpose |
+|---|---|
+| `folke/lazy.nvim` | Plugin manager |
+| `tpope/vim-sleuth` | Auto-detect tabstop and shiftwidth |
+| `lewis6991/gitsigns.nvim` | Git change signs in the gutter (+, ~, _) |
+| `folke/which-key.nvim` | Popup showing pending keybinds (delay set to 0) |
+| `nvim-telescope/telescope.nvim` | Fuzzy finder for files, grep, LSP symbols, buffers, help, etc. Tracks master branch (not 0.1.x) to stay compatible with Neovim 0.11+ |
+| `neovim/nvim-lspconfig` | LSP client configuration |
+| `williamboman/mason.nvim` | LSP/tool installer |
+| `williamboman/mason-lspconfig.nvim` | Bridges Mason and lspconfig |
+| `WhoIsSethDaniel/mason-tool-installer.nvim` | Ensures specified tools are installed |
+| `stevearc/conform.nvim` | Autoformatting (format on save, `<leader>f` to format manually) |
+| `folke/lazydev.nvim` | Lua LSP config for editing Neovim config files |
+| `folke/todo-comments.nvim` | Highlights TODO, FIXME, HACK, WARN, NOTE, TEST in comments |
+| `echasnovski/mini.nvim` | mini.ai (better text objects), mini.surround, mini.statusline |
+| `nvim-treesitter/nvim-treesitter` | Syntax highlighting and code parsing |
 
-Start Neovim
+### Custom Additions
 
-```sh
-nvim
-```
-
-That's it! Lazy will install all the plugins you have. Use `:Lazy` to view
-the current plugin status. Hit `q` to close the window.
-
-#### Read The Friendly Documentation
-
-Read through the `init.lua` file in your configuration folder for more
-information about extending and exploring Neovim. That also includes
-examples of adding popularly requested plugins.
-
-> [!NOTE]
-> For more information about a particular plugin check its repository's documentation.
+| Plugin | Purpose |
+|---|---|
+| `ms-jpq/coq_nvim` | Completion engine (replaces nvim-cmp). Has ghost text, snippets via coq.artifacts, math evaluation via coq.thirdparty. Tuned timeouts for Roslyn. |
+| `sainnhe/gruvbox-material` | Colorscheme. Hard background, material foreground, italic + bold enabled. |
+| `akinsho/bufferline.nvim` | Visual tab bar at the top, configured in tabs mode (not buffers). |
+| `nvimdev/dashboard-nvim` | Start screen with "HasteVim" ASCII art and shortcut hints. |
+| `dgagn/diagflow.nvim` | Shows diagnostics inline as virtual text near the cursor rather than at end of line. |
+| `j-hui/fidget.nvim` | LSP progress spinner in the bottom-right. Custom integration bridges Roslyn-specific events (solution loading, NuGet restore progress) into fidget's progress API. |
+| `nvim-neo-tree/neo-tree.nvim` | File tree sidebar. Toggle with `\`. |
+| `seblyng/roslyn.nvim` | Manages the Roslyn C# language server. Loads on `.cs` files. Uses broad_search to find `.sln` files up the directory tree. |
+| `kalvinpearce/ShaderHighlight` | Vim regex syntax for ShaderLab, HLSL, GLSL, Cg files. Needed because no treesitter parser exists for ShaderLab. |
 
 
-### Getting Started
+## LSP Servers
 
-[The Only Video You Need to Get Started with Neovim](https://youtu.be/m8C0Cq9Uv9o)
+Servers are installed and managed through Mason. The Mason config includes a custom registry (`Crashdummyy/mason-registry`) to provide the Roslyn LSP binary.
 
-### FAQ
+| Server | Language(s) | Notes |
+|---|---|---|
+| `lua_ls` | Lua | Default from kickstart, for editing nvim config |
+| `glsl_analyzer` | GLSL | For shader development |
+| `roslyn` | C# | Managed by roslyn.nvim, not directly in the Mason servers table. Loads when a `.cs` file is opened. Settings are in `after/lsp/roslyn.lua`. |
 
-* What should I do if I already have a pre-existing Neovim configuration?
-  * You should back it up and then delete all associated files.
-  * This includes your existing init.lua and the Neovim files in `~/.local`
-    which can be deleted with `rm -rf ~/.local/share/nvim/`
-* Can I keep my existing configuration in parallel to kickstart?
-  * Yes! You can use [NVIM_APPNAME](https://neovim.io/doc/user/starting.html#%24NVIM_APPNAME)`=nvim-NAME`
-    to maintain multiple configurations. For example, you can install the kickstart
-    configuration in `~/.config/nvim-kickstart` and create an alias:
-    ```
-    alias nvim-kickstart='NVIM_APPNAME="nvim-kickstart" nvim'
-    ```
-    When you run Neovim using `nvim-kickstart` alias it will use the alternative
-    config directory and the matching local directory
-    `~/.local/share/nvim-kickstart`. You can apply this approach to any Neovim
-    distribution that you would like to try out.
-* What if I want to "uninstall" this configuration:
-  * See [lazy.nvim uninstall](https://lazy.folke.io/usage#-uninstalling) information
-* Why is the kickstart `init.lua` a single file? Wouldn't it make sense to split it into multiple files?
-  * The main purpose of kickstart is to serve as a teaching tool and a reference
-    configuration that someone can easily use to `git clone` as a basis for their own.
-    As you progress in learning Neovim and Lua, you might consider splitting `init.lua`
-    into smaller parts. A fork of kickstart that does this while maintaining the
-    same functionality is available here:
-    * [kickstart-modular.nvim](https://github.com/dam9000/kickstart-modular.nvim)
-  * Discussions on this topic can be found here:
-    * [Restructure the configuration](https://github.com/nvim-lua/kickstart.nvim/issues/218)
-    * [Reorganize init.lua into a multi-file setup](https://github.com/nvim-lua/kickstart.nvim/pull/473)
+### Roslyn LSP Settings (after/lsp/roslyn.lua)
 
-### Install Recipes
+The Roslyn config enables completion from unimported namespaces (helpful for Unity APIs like `UnityEngine.UI`), inlay hints for implicit types and lambda parameters, references code lens, and background analysis scoped to open files (change to `fullSolution` for project-wide diagnostics at the cost of higher resource usage).
 
-Below you can find OS specific install instructions for Neovim and dependencies.
+### Known Roslyn Quirk
 
-After installing all the dependencies continue with the [Install Kickstart](#Install-Kickstart) step.
+Roslyn can take 15-30+ seconds to fully index a Unity project after attaching. LSP features like go-to-definition and find-references may not work until indexing finishes, even after fidget reports that Roslyn has attached. If things are not responding, give it more time. Ensure Unity has been opened at least once so the `.sln` and `.csproj` files exist and are up to date.
 
-#### Windows Installation
 
-<details><summary>Windows with Microsoft C++ Build Tools and CMake</summary>
-Installation may require installing build tools and updating the run command for `telescope-fzf-native`
+## Completion Engine: coq_nvim
 
-See `telescope-fzf-native` documentation for [more details](https://github.com/nvim-telescope/telescope-fzf-native.nvim#installation)
+This config uses coq_nvim instead of nvim-cmp. The `coq.lua` custom plugin explicitly disables the entire nvim-cmp ecosystem (nvim-cmp, cmp-nvim-lsp, cmp-path, cmp_luasnip, LuaSnip) and loads coq_nvim with `auto_start = 'shut-up'`. The Mason lspconfig handler wraps each server with `coq.lsp_ensure_capabilities()` so all LSP servers feed into coq.
 
-This requires:
+coq provides completions from LSP, treesitter, buffer words, file paths, and its built-in snippet library (9000+ snippets including C#). Ghost text previews are enabled.
 
-- Install CMake and the Microsoft C++ Build Tools on Windows
+### coq Default Keybinds (in insert mode)
 
-```lua
-{'nvim-telescope/telescope-fzf-native.nvim', build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build' }
-```
-</details>
-<details><summary>Windows with gcc/make using chocolatey</summary>
-Alternatively, one can install gcc and make which don't require changing the config,
-the easiest way is to use choco:
+| Key | Action |
+|---|---|
+| `<C-Space>` | Manual trigger completion |
+| `<C-n>` / `<C-p>` | Navigate completion menu |
+| `<C-e>` | Dismiss completion |
+| `<leader>j` | Evaluate snippets |
 
-1. install [chocolatey](https://chocolatey.org/install)
-either follow the instructions on the page or use winget,
-run in cmd as **admin**:
-```
-winget install --accept-source-agreements chocolatey.chocolatey
-```
 
-2. install all requirements using choco, exit the previous cmd and
-open a new one so that choco path is set, and run in cmd as **admin**:
-```
-choco install -y neovim git ripgrep wget fd unzip gzip mingw make
-```
-</details>
-<details><summary>WSL (Windows Subsystem for Linux)</summary>
+## Unity Shader Setup
 
-```
-wsl --install
-wsl
-sudo add-apt-repository ppa:neovim-ppa/unstable -y
-sudo apt update
-sudo apt install make gcc ripgrep unzip git xclip neovim
-```
-</details>
+Unity shader files use two languages: ShaderLab (the outer DSL for Shader/SubShader/Pass blocks) and HLSL (the actual shader programs inside CGPROGRAM/ENDCG blocks).
 
-#### Linux Install
-<details><summary>Ubuntu Install Steps</summary>
+Filetype detection is configured in `unity-shaders.lua`:
+- `.shader` files are mapped to `shaderlab` filetype (vim regex syntax from ShaderHighlight, since no treesitter parser exists)
+- `.cginc`, `.hlsli`, `.compute`, `.cg` files are mapped to `hlsl` (treesitter highlighting)
+- `.glsl`, `.vert`, `.frag`, `.geom`, `.tesc`, `.tese`, `.comp` files are mapped to `glsl` (treesitter highlighting)
 
-```
-sudo add-apt-repository ppa:neovim-ppa/unstable -y
-sudo apt update
-sudo apt install make gcc ripgrep unzip git xclip neovim
-```
-</details>
-<details><summary>Debian Install Steps</summary>
+All shader files get 4-space indentation and `// %s` comment strings set automatically.
 
-```
-sudo apt update
-sudo apt install make gcc ripgrep unzip git xclip curl
 
-# Now we install nvim
-curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
-sudo rm -rf /opt/nvim-linux64
-sudo mkdir -p /opt/nvim-linux64
-sudo chmod a+rX /opt/nvim-linux64
-sudo tar -C /opt -xzf nvim-linux64.tar.gz
+## Keybindings Reference
 
-# make it available in /usr/local/bin, distro installs to /usr/bin
-sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/
-```
-</details>
-<details><summary>Fedora Install Steps</summary>
+### General / Custom
 
-```
-sudo dnf install -y gcc make git ripgrep fd-find unzip neovim
-```
-</details>
+These are mappings added or changed from the kickstart defaults. The leader key is `<Space>`.
 
-<details><summary>Arch Install Steps</summary>
+| Shortcut | Mode | Action |
+|---|---|---|
+| `jj` | Insert, Visual, Command | Escape (exit to Normal mode) |
+| `<leader>ww` | Normal | Save buffer (`:w`) |
+| `<leader>wq` | Normal | Save and quit (`:wq`) |
+| `<leader>tn` | Normal | Open new tab |
+| `<leader>tl` | Normal | Next tab |
+| `<leader>th` | Normal | Previous tab |
+| `<leader>tc` | Normal | Save and close current tab |
+| `<leader>t0` | Normal | Go to first tab |
+| `<leader>t$` | Normal | Go to last tab |
+| `<leader>rv` | Normal | Rename in file using vim substitute (all occurrences). Puts cursor in command line with the word under cursor pre-filled -- type the replacement name over `NEW_NAME`. |
+| `<leader>rV` | Normal | Same as above but with confirmation for each occurrence (`/gc`) |
+| `\` | Normal | Toggle Neo-tree file browser |
+| `<leader>f` | Any | Format buffer with conform.nvim |
 
-```
-sudo pacman -S --noconfirm --needed gcc make git ripgrep fd unzip neovim
-```
-</details>
+### Telescope (Fuzzy Finding)
 
+| Shortcut | Action |
+|---|---|
+| `<leader>sf` | Search files |
+| `<leader>sg` | Search by grep (live grep across project) |
+| `<leader>sw` | Search current word under cursor |
+| `<leader>sh` | Search help tags |
+| `<leader>sk` | Search keymaps |
+| `<leader>ss` | Search Telescope pickers (meta-search) |
+| `<leader>sd` | Search diagnostics |
+| `<leader>sr` | Resume last Telescope search |
+| `<leader>s.` | Search recent files |
+| `<leader>s/` | Live grep in open files only |
+| `<leader>sn` | Search Neovim config files |
+| `<leader>/` | Fuzzy search in current buffer |
+| `<leader><leader>` | Find existing buffers |
+
+### LSP (active when a language server is attached)
+
+| Shortcut | Action |
+|---|---|
+| `gd` | Go to definition (opens in new tab if in a different file, via `jump_type = 'tab drop'`) |
+| `g0` | Find references (opens in new tab via `jump_type = 'tab drop'`) |
+| `gI` | Go to implementation |
+| `gD` | Go to declaration |
+| `<leader>D` | Go to type definition |
+| `<leader>ds` | Document symbols (fuzzy list of functions, variables, etc. in current file) |
+| `<leader>ws` | Workspace symbols (same but across entire project) |
+| `<leader>rn` | Rename symbol (LSP rename across files) |
+| `<leader>ca` | Code action (quick fixes, refactors) |
+| `<leader>lh` | Toggle LSP inlay hints |
+
+### Window Navigation
+
+| Shortcut | Action |
+|---|---|
+| `<C-h>` | Move focus to left window |
+| `<C-l>` | Move focus to right window |
+| `<C-j>` | Move focus to lower window |
+| `<C-k>` | Move focus to upper window |
+
+### Other Defaults Worth Remembering
+
+| Shortcut | Action |
+|---|---|
+| `<Esc>` | Clear search highlights (in Normal mode) |
+| `<Esc><Esc>` | Exit terminal mode |
+| `<leader>q` | Open diagnostic quickfix list |
+
+### mini.nvim Text Objects and Surround
+
+| Example | Action |
+|---|---|
+| `va)` | Visually select around parentheses |
+| `yinq` | Yank inside next quote |
+| `ci'` | Change inside single quotes |
+| `saiw)` | Surround add inner word with parentheses |
+| `sd'` | Surround delete single quotes |
+| `sr)'` | Surround replace `)` with `'` |
+
+
+## which-key Groups
+
+Pressing `<leader>` and waiting will show a popup with these groups:
+
+| Prefix | Group |
+|---|---|
+| `<leader>c` | Code |
+| `<leader>d` | Document |
+| `<leader>l` | LSP |
+| `<leader>r` | Rename |
+| `<leader>s` | Search |
+| `<leader>w` | Workspace / Write |
+| `<leader>t` | Tabs |
+| `<leader>h` | Git Hunk |
+
+
+## Options and Behaviors
+
+Notable vim options set in `init.lua`:
+- Relative line numbers enabled
+- Mouse enabled
+- System clipboard synced (`unnamedplus`)
+- Persistent undo history across sessions (`undofile`)
+- Case-insensitive search unless capitals are used
+- Splits open to the right and below
+- Whitespace characters shown (tab, trailing space, nbsp)
+- Live substitution preview in a split
+- Cursor line highlighted
+- Scroll offset of 10 lines
+- Yank highlighting on copy
+- Format on save enabled (disabled for C/C++)
+- Unity nvim server socket (`/tmp/nvimsocket`) cleaned up on exit
+
+
+## Useful Commands
+
+| Command | Purpose |
+|---|---|
+| `:Lazy` | Open the plugin manager UI. Press `?` for help. |
+| `:Lazy update` | Update all plugins |
+| `:Lazy sync` | Sync plugin lockfile |
+| `:Mason` | Open Mason UI to see/install LSP servers and tools |
+| `:Telescope keymaps` | Browse all active keymaps (same as `<leader>sk`) |
+| `:checkhealth` | Diagnose configuration issues |
+| `:Tutor` | Built-in Neovim tutorial |
+| `:ConformInfo` | See which formatters are active for the current file |
+| `:TSUpdate` | Update treesitter grammars |
+
+
+## Dependencies
+
+- Neovim 0.11+ (stable or nightly)
+- A [Nerd Font](https://www.nerdfonts.com/) installed and set in your terminal (`have_nerd_font = true`)
+- `git`, `make`, `unzip`, a C compiler (`gcc`)
+- [ripgrep](https://github.com/BurntSushi/ripgrep) (used by Telescope's live grep)
+- A clipboard tool (`xclip`, `xsel`, `win32yank`, etc.)
+- For Unity development: the Unity editor must have been opened at least once so it generates `.sln` and `.csproj` files for Roslyn to consume
+
+
+## Repo
+
+https://github.com/sbeitelmal/MyNvimConfig

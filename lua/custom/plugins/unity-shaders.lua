@@ -68,6 +68,65 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
   desc = 'Buffer-local settings for Unity shader files',
 })
+-----------------------------------------------------------------------
+-- shader-language-server (HLSL LSP)
+-----------------------------------------------------------------------
+-- Rust-based LSP from antaalt/shader-sense. Provides HLSL diagnostics
+-- (via DXC or glslang fallback), completion, goto-def, hover, and
+-- symbol inspection via tree-sitter.
+--
+-- Prerequisites:
+--   1. cargo install shader_language_server
+--   2. Optional: libdxcompiler.so next to the binary for full DXC diagnostics
+--   3. .shader-language-server.json at project root for Unity include paths
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'hlsl' },
+  group = vim.api.nvim_create_augroup('shader-language-server', { clear = true }),
+  callback = function(args)
+    if vim.fn.executable 'shader-language-server' ~= 1 then
+      return
+    end
+
+    -- Find project root: Unity projects have Assets/ dir, fall back to .git
+    local root_dir = vim.fs.root(args.buf, function(name, _)
+      return name == 'Assets'
+    end)
+    if not root_dir then
+      root_dir = vim.fs.root(args.buf, { '.git', '.shader-language-server.json' })
+    end
+
+    -- Build cmd: use config file if one exists at the project root
+    local cmd = { 'shader-language-server', '--hlsl', '--stdio' }
+    if root_dir then
+      local config_path = root_dir .. '/.shader-language-server.json'
+      if vim.uv.fs_stat(config_path) then
+        cmd = { 'shader-language-server', '--hlsl', '--config-file', config_path, '--stdio' }
+      end
+    end
+
+    local settings = {}
+    if root_dir then
+      local config_path = root_dir .. '/.shader-language-server.json'
+      local f = io.open(config_path, 'r')
+      if f then
+        local content = f:read '*a'
+        f:close()
+        local ok, parsed = pcall(vim.json.decode, content)
+        if ok then
+          settings = { ['shader-validator'] = parsed }
+        end
+      end
+    end
+    vim.lsp.start {
+      name = 'shader-language-server',
+      cmd = cmd,
+      root_dir = root_dir,
+      settings = settings,
+      -- cmd_env = { RUST_LOG = 'info' },
+    }
+  end,
+  desc = 'Start shader-language-server for HLSL files',
+})
 
 -----------------------------------------------------------------------
 -- Plugin specs

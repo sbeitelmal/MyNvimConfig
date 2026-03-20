@@ -667,7 +667,7 @@ require('lazy').setup({
         -- clangd = {},
         -- gopls = {},
         -- pyright = {},
-        -- rust_analyzer = {},
+        rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -769,6 +769,7 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        rust = { 'rustfmt' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
@@ -987,7 +988,7 @@ require('lazy').setup({
     build = ':TSUpdate',
     main = 'nvim-treesitter',
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'rust', 'toml' },
       auto_install = true,
     },
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
@@ -1053,3 +1054,19 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+--
+--helps lsps deal with weird null bytes in diagnostics
+--
+-- Somewhere in your init or a plugin file (e.g., lua/custom/diagnostics.lua)
+
+local original_handler = vim.lsp.handlers['textDocument/publishDiagnostics']
+vim.lsp.handlers['textDocument/publishDiagnostics'] = function(err, result, ctx, config)
+  if result and result.diagnostics then
+    for _, diagnostic in ipairs(result.diagnostics) do
+      if diagnostic.message then
+        diagnostic.message = diagnostic.message:gsub('%z', '')
+      end
+    end
+  end
+  return original_handler(err, result, ctx, config)
+end
